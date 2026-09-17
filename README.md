@@ -1,4 +1,4 @@
-# gmail-triage
+# gmailsage
 
 Personal inbox triage: rules-first, LLM fallback (Groq), auto-label + archive job-alert spam, daily digest for what matters.
 
@@ -55,4 +55,3 @@ Set up a daily cron (or AWS EventBridge → Lambda, since that's your stack) to 
 - Add more job-portal domains to `rules/sender_domains.json` as you spot them —
   every domain you add there is one less LLM call.
 - Categories/labels live in `gmail_actions.py::CATEGORY_LABELS` — add new ones there.
-# GmailSage

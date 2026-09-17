@@ -1,0 +1,22 @@
+# secrets & tokens
+.env
+credentials.json
+token.json
+
+# data & logs
+triage.db
+triage.log.jsonl
+triage.cron.log
+digest.cron.log
+
+# python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.env.local
+
+# os
+.DS_Store
+Thumbs.db
