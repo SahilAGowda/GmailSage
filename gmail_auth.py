@@ -34,8 +34,9 @@ def get_service(scopes=SCOPES_READONLY):
     if os.path.exists(TOKEN_PATH):
         creds = Credentials.from_authorized_user_file(TOKEN_PATH, scopes)
 
-    # Force re-auth if stored token doesn't have the required scopes
-    if creds and creds.scopes is not None and set(creds.scopes) != set(scopes):
+    # Force re-auth if stored token doesn't have the required scopes (handles None scopes and expired refresh)
+    if creds and (creds.scopes is None or set(creds.scopes) != set(scopes)):
+        # Don't try to refresh with wrong scopes — force new consent
         creds = None
 
     if not creds or not creds.valid:
