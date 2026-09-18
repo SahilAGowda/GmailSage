@@ -4,7 +4,7 @@ Nothing in this file deletes mail. Archiving = removing INBOX label,
 which is fully reversible from All Mail.
 """
 
-LABEL_PREFIX = "Triage"
+LABEL_PREFIX = "GmailSage"
 
 CATEGORY_LABELS = {
     "interview": f"{LABEL_PREFIX}/Interview",
@@ -21,6 +21,22 @@ CATEGORY_LABELS = {
     "other": f"{LABEL_PREFIX}/Other",
 }
 
+# Gmail label colors (backgroundColor + textColor) — curated for visibility
+LABEL_COLORS = {
+    "interview": {"backgroundColor": "#16a765", "textColor": "#ffffff"},  # green
+    "offer": {"backgroundColor": "#0b804b", "textColor": "#ffffff"},      # dark green
+    "deadline": {"backgroundColor": "#fb4c2f", "textColor": "#ffffff"},   # red
+    "personal": {"backgroundColor": "#4986e7", "textColor": "#ffffff"},   # blue
+    "job_alert": {"backgroundColor": "#999999", "textColor": "#ffffff"},  # gray
+    "newsletter": {"backgroundColor": "#cccccc", "textColor": "#000000"}, # light gray
+    "promo": {"backgroundColor": "#fad165", "textColor": "#000000"},      # yellow
+    "learning": {"backgroundColor": "#a479e2", "textColor": "#ffffff"},   # purple
+    "finance": {"backgroundColor": "#fbe983", "textColor": "#000000"},    # light yellow
+    "social": {"backgroundColor": "#b6cff5", "textColor": "#0d3472"},     # light blue (valid)
+    "updates": {"backgroundColor": "#a2dcc1", "textColor": "#000000"},    # mint
+    "other": {"backgroundColor": "#efefef", "textColor": "#000000"},      # off-white
+}
+
 _label_id_cache = {}
 
 
@@ -32,19 +48,32 @@ def _get_or_create_label(service, label_name: str) -> str:
     for lbl in labels:
         if lbl["name"] == label_name:
             _label_id_cache[label_name] = lbl["id"]
+            # Patch color if missing/wrong (migrate Triage -> GmailSage)
+            cat = next((k for k, v in CATEGORY_LABELS.items() if v == label_name), None)
+            if cat and lbl.get("color") != LABEL_COLORS.get(cat):
+                try:
+                    service.users().labels().patch(
+                        userId="me", id=lbl["id"],
+                        body={"color": LABEL_COLORS[cat]}
+                    ).execute()
+                except Exception:
+                    pass
             return lbl["id"]
+
+    # Find category for color
+    cat = next((k for k, v in CATEGORY_LABELS.items() if v == label_name), None)
+    body = {
+        "name": label_name,
+        "labelListVisibility": "labelShow",
+        "messageListVisibility": "show",
+    }
+    if cat and cat in LABEL_COLORS:
+        body["color"] = LABEL_COLORS[cat]
 
     created = (
         service.users()
         .labels()
-        .create(
-            userId="me",
-            body={
-                "name": label_name,
-                "labelListVisibility": "labelShow",
-                "messageListVisibility": "show",
-            },
-        )
+        .create(userId="me", body=body)
         .execute()
     )
     _label_id_cache[label_name] = created["id"]
@@ -69,7 +98,7 @@ def apply_label_and_route(service, message_id: str, category: str, priority: str
 
 
 def undo_route(service, message_id: str, category: str):
-    """Reverses triage: removes Triage label and restores INBOX."""
+    """Reverses triage: removes GmailSage label and restores INBOX."""
     label_name = CATEGORY_LABELS.get(category, CATEGORY_LABELS["other"])
     # Find label id without creating it
     labels = service.users().labels().list(userId="me").execute().get("labels", [])

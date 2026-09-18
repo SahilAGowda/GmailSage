@@ -128,7 +128,7 @@ def run_undo(hours: int, dry_run: bool = False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true", help="classify only, no labels/archiving, no DB writes")
-    parser.add_argument("--undo", action="store_true", help="reverse last run: restore INBOX and remove Triage labels")
+    parser.add_argument("--undo", action="store_true", help="reverse last run: restore INBOX and remove GmailSage labels")
     parser.add_argument("--hours", type=int, default=24, help="hours window for --undo (default 24)")
     parser.add_argument("--query", type=str, default=DEFAULT_QUERY, help="Gmail query (default from TRIAGE_QUERY env)")
     parser.add_argument("--max-results", type=int, default=DEFAULT_MAX, help="max messages per run")

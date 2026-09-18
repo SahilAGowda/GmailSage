@@ -68,7 +68,7 @@ def build_digest_body(service, rows, html: bool = False):
     init_db()
     stats, total = get_stats(hours=DIGEST_HOURS)
     html_parts.append(f"<hr><p><small>24h: {total} processed. " + ", ".join(f"{c}: {n}" for c, _, _, n in stats) + "</small></p>")
-    html_parts.append('<p><small><a href="https://mail.google.com/mail/u/0/#search/label%3ATriage">View all Triage labels</a></small></p>')
+    html_parts.append('<p><small><a href="https://mail.google.com/mail/u/0/#search/label%3AGmailSage">View all GmailSage labels</a></small></p>')
     return "\n".join(html_parts)
 
 
