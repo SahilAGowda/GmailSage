@@ -41,6 +41,20 @@ flowchart TD
 | finance | low | archive + `GmailSage/*` | 🟨 #fbe983 | Groww digest |
 | social | low | archive + `GmailSage/*` | 🔵 #b6cff5 | Facebook notify |
 
+## Safety layers
+
+1. **Application mail wins** — subjects like "your application", "assessment", "interview", "offer letter" -> `GmailSage/Application`, high, before any bulk rule.
+2. **Known contacts** — anyone you've sent mail to (`in:sent to:x`, cached 30 days) is never archived.
+3. **Protected subjects** — security/sign-in/password/OTP/PIN/payment/suspended/expired (`protected_subject_patterns`) can never be archived, even if the LLM says `low`.
+4. **Learns from you** — if you move an archived GmailSage mail back to the inbox, that sender goes on a keep list (`keep_senders` table) and is never archived again.
+5. **Sender-level rules** — big platforms are split by address (`job_alert_senders`, `keep_senders`, ...) so LinkedIn job alerts get archived but InMail/security mail don't.
+
+Errors: Gmail calls retry with backoff; a failed message is skipped and retried next run. If Groq fails, `OLLAMA_MODEL` (optional, local, free) is tried; if nothing answers, the mail is left alone.
+
+Tests: `python -m unittest test_rules -v`
+
+Undo one noisy decision: `python triage.py --undo --hours 168 --sender google.com`
+
 ## Setup
 
 1. **Google Cloud OAuth**
@@ -69,7 +83,7 @@ flowchart TD
 python triage.py --dry-run
 ```
 
-Check the output. If `job_alert` classifications look right, tune `rules/sender_domains.json`
+Check the output. If `job_alert` classifications look right, tune `sender_domains.json`
 with any senders that slipped to the LLM tier (cheaper + more predictable than the LLM).
 
 Once you trust it:
@@ -91,6 +105,6 @@ Set up a daily cron (or AWS EventBridge → Lambda, since that's your stack) to 
 
 ## Extending
 
-- Add more job-portal domains to `rules/sender_domains.json` as you spot them —
+- Add more job-portal domains to `sender_domains.json` as you spot them —
   every domain you add there is one less LLM call.
 - Categories/labels live in `gmail_actions.py::CATEGORY_LABELS` — add new ones there.

@@ -1,14 +1,30 @@
 {
+  "_comment_senders": "Exact sender addresses, checked before domains. Use for big platforms that send many kinds of mail from one domain.",
+  "job_alert_senders": [
+    "jobalerts-noreply@linkedin.com",
+    "jobs-noreply@linkedin.com"
+  ],
+  "social_senders": [
+    "invitations@linkedin.com",
+    "notifications-noreply@linkedin.com",
+    "groups-noreply@linkedin.com"
+  ],
+  "newsletter_senders": [
+    "newsletters-noreply@linkedin.com",
+    "linkedin@em.linkedin.com"
+  ],
+  "keep_senders": [
+    "messages-noreply@linkedin.com",
+    "security-noreply@linkedin.com"
+  ],
   "job_alert_domains": [
     "naukri.com",
-    "linkedin.com",
     "indeedemail.com",
     "indeed.com",
     "instahyre.com",
     "cutshort.io",
     "hirist.com",
     "hirist.tech",
-    "jobfeed.hirist.com",
     "foundit.in",
     "shine.com",
     "timesjobs.com",
@@ -20,56 +36,91 @@
     "talent500.co",
     "workindia.info",
     "impacteersjobs.com",
-    "noreply12.jobs2web.com",
-    "acciojob-team.org"
+    "jobs2web.com",
+    "acciojob-team.org",
+    "internshala.com",
+    "apnajobs.com"
   ],
   "job_alert_subject_patterns": [
-    "\\bnew jobs? (matching|for you)\\b",
+    "\\bnew jobs? (matching|for you|posted)\\b",
     "\\bjobs? you (may|might) be interested\\b",
     "\\bapply now\\b.*\\bjob\\b",
-    "\\b\\d+\\+? new jobs?\\b",
+    "\\b\\d+\\+? (new )?jobs?\\b",
     "recommended jobs? for you",
     "based on your profile",
     "\\bis hiring\\b",
     "\\bwe'?re hiring\\b",
+    "\\bhiring now\\b",
     "\\bjob opportunities\\b",
     "\\bopenings? for you\\b",
     "\\btop .*jobs\\b",
     "\\bUrgent Requirement.*role\\b"
   ],
+  "application_subject_patterns": [
+    "\\byour application\\b",
+    "\\bapplication (received|status|update|submitted)\\b",
+    "\\bthank(s| you) for applying\\b",
+    "\\b(online |coding |technical )?assessment\\b",
+    "\\binterview\\b",
+    "\\bnext steps?\\b",
+    "\\bshortlisted\\b",
+    "\\boffer letter\\b",
+    "\\bjoining (date|formalities|letter)\\b",
+    "\\bunfortunately\\b.*\\b(position|role|application|candidacy)\\b"
+  ],
+  "protected_subject_patterns": [
+    "\\bsecurity (alert|notice|warning)\\b",
+    "\\bgoogle account\\b",
+    "\\bsign[- ]?in\\b",
+    "\\bsigned in\\b",
+    "\\bnew (login|device)\\b",
+    "\\bpassword\\b",
+    "\\b(verification|security|single-use|one-time) code\\b",
+    "\\botp\\b",
+    "\\bpayment (failed|issue|declined|due|reminder)\\b",
+    "\\bbalance due\\b",
+    "\\binvoice\\b",
+    "\\bsuspended\\b",
+    "\\b(has )?expire[ds]?\\b",
+    "\\bexpiring\\b",
+    "\\baction required\\b",
+    "\\bsent you a (new )?message\\b",
+    "\\binmail\\b",
+    "\\bpin\\b"
+  ],
   "newsletter_domains": [
     "nptel.iitm.ac.in",
     "unstop.news",
-    "jsmastery.pro",
-    "skool.com",
-    "digest.groww.in",
     "news.n8n.io",
     "n8n.io",
     "youexec.com",
     "teachcomputerscience.com",
     "hackculture.net",
-    "students.udemy.com",
-    "udemy.com",
-    "noreply.hack2skill.com",
     "hack2skill.com",
-    "groww.in",
-    "infotechbrains.com"
+    "infotechbrains.com",
+    "pl-coding.com",
+    "email.meetup.com",
+    "deeplearning.ai",
+    "outlier.ai"
   ],
   "promo_domains": [
     "insideapple.apple.com",
     "m.fontawesome.com",
-    "priority.facebookmail.com",
+    "rmp.flipkart.com"
+  ],
+  "social_domains": [
     "facebookmail.com"
   ],
   "learning_domains": [
     "nptel.iitm.ac.in",
-    "students.udemy.com",
+    "udemy.com",
     "jsmastery.pro",
     "skool.com",
-    "unstop.news"
+    "unstop.news",
+    "pl-coding.com",
+    "deeplearning.ai"
   ],
   "finance_domains": [
-    "digest.groww.in",
     "groww.in"
   ]
 }

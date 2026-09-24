@@ -4,12 +4,15 @@ Nothing in this file deletes mail. Archiving = removing INBOX label,
 which is fully reversible from All Mail.
 """
 
+RETRIES = 3  # googleapiclient retries 429/5xx and network errors with backoff
+
 LABEL_PREFIX = "GmailSage"
 
 CATEGORY_LABELS = {
     "interview": f"{LABEL_PREFIX}/Interview",
     "offer": f"{LABEL_PREFIX}/Offer",
     "deadline": f"{LABEL_PREFIX}/Deadline",
+    "application": f"{LABEL_PREFIX}/Application",
     "personal": f"{LABEL_PREFIX}/Personal",
     "job_alert": f"{LABEL_PREFIX}/Job Alerts",
     "newsletter": f"{LABEL_PREFIX}/Newsletter",
@@ -26,6 +29,7 @@ LABEL_COLORS = {
     "interview": {"backgroundColor": "#16a765", "textColor": "#ffffff"},  # green
     "offer": {"backgroundColor": "#0b804b", "textColor": "#ffffff"},      # dark green
     "deadline": {"backgroundColor": "#fb4c2f", "textColor": "#ffffff"},   # red
+    "application": {"backgroundColor": "#ffad47", "textColor": "#ffffff"},  # orange
     "personal": {"backgroundColor": "#4986e7", "textColor": "#ffffff"},   # blue
     "job_alert": {"backgroundColor": "#999999", "textColor": "#ffffff"},  # gray
     "newsletter": {"backgroundColor": "#cccccc", "textColor": "#000000"}, # light gray
@@ -44,7 +48,7 @@ def _get_or_create_label(service, label_name: str) -> str:
     if label_name in _label_id_cache:
         return _label_id_cache[label_name]
 
-    labels = service.users().labels().list(userId="me").execute().get("labels", [])
+    labels = service.users().labels().list(userId="me").execute(num_retries=RETRIES).get("labels", [])
     for lbl in labels:
         if lbl["name"] == label_name:
             _label_id_cache[label_name] = lbl["id"]
@@ -74,7 +78,7 @@ def _get_or_create_label(service, label_name: str) -> str:
         service.users()
         .labels()
         .create(userId="me", body=body)
-        .execute()
+        .execute(num_retries=RETRIES)
     )
     _label_id_cache[label_name] = created["id"]
     return created["id"]
@@ -94,18 +98,35 @@ def apply_label_and_route(service, message_id: str, category: str, priority: str
         userId="me",
         id=message_id,
         body={"addLabelIds": add_labels, "removeLabelIds": remove_labels},
-    ).execute()
+    ).execute(num_retries=RETRIES)
+
+
+def _find_label_id(service, label_name: str):
+    """Label id without creating it (None if it doesn't exist)."""
+    if label_name not in _label_id_cache:
+        labels = service.users().labels().list(userId="me").execute(num_retries=RETRIES).get("labels", [])
+        for lbl in labels:
+            _label_id_cache.setdefault(lbl["name"], lbl["id"])
+    return _label_id_cache.get(label_name)
 
 
 def undo_route(service, message_id: str, category: str):
     """Reverses triage: removes GmailSage label and restores INBOX."""
-    label_name = CATEGORY_LABELS.get(category, CATEGORY_LABELS["other"])
-    # Find label id without creating it
-    labels = service.users().labels().list(userId="me").execute().get("labels", [])
-    label_id = next((l["id"] for l in labels if l["name"] == label_name), None)
+    label_id = _find_label_id(service, CATEGORY_LABELS.get(category, CATEGORY_LABELS["other"]))
     remove = [label_id] if label_id else []
     service.users().messages().modify(
         userId="me",
         id=message_id,
         body={"addLabelIds": ["INBOX"], "removeLabelIds": remove},
-    ).execute()
+    ).execute(num_retries=RETRIES)
+
+
+def ids_back_in_inbox(service, category: str) -> set:
+    """Message ids that carry this category's label AND are in INBOX again."""
+    label_id = _find_label_id(service, CATEGORY_LABELS.get(category, CATEGORY_LABELS["other"]))
+    if not label_id:
+        return set()
+    resp = service.users().messages().list(
+        userId="me", labelIds=["INBOX", label_id], maxResults=500
+    ).execute(num_retries=RETRIES)
+    return {m["id"] for m in resp.get("messages", [])}
