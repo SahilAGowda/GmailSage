@@ -51,7 +51,7 @@ flowchart TD
 
 Errors: Gmail calls retry with backoff; a failed message is skipped and retried next run. If Groq fails, `OLLAMA_MODEL` (optional, local, free) is tried; if nothing answers, the mail is left alone.
 
-Tests: `python -m unittest test_rules -v`
+Tests: `python -m unittest test_rules test_store test_gmail_actions -v` (also runs in CI on every push)
 
 Undo one noisy decision: `python triage.py --undo --hours 168 --sender google.com`
 

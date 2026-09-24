@@ -18,7 +18,12 @@ from gmail_auth import get_service
 from store import get_digest_items, get_stats, get_top_archived_senders, init_db
 
 load_dotenv()
-DIGEST_TO = os.environ["DIGEST_TO_EMAIL"]
+try:
+    DIGEST_TO = os.environ["DIGEST_TO_EMAIL"]
+except KeyError:
+    raise SystemExit(
+        "DIGEST_TO_EMAIL is not set. Add it to your .env (the address the daily digest is sent to)."
+    )
 DIGEST_HOURS = int(os.environ.get("DIGEST_HOURS", "24"))
 
 
